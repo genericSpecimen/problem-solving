@@ -1,0 +1,20 @@
+without std::cin.tie(nullptr)
+real    4m39.675s
+user    1m13.168s
+sys     3m25.181s
+
+with std::cin.tie(nullptr)
+real    3m7.942s
+user    0m12.004s
+sys     1m34.627s
+
+
+without std::ios::sync_with_stdio(false) and without std::cin.tie(nullptr)
+real    0m23.015s
+user    0m22.825s
+sys     0m0.180s
+
+with std::ios::sync_with_stdio(false) and with std::cin.tie(nullptr)
+real    0m6.892s
+user    0m6.748s
+sys     0m0.140s
