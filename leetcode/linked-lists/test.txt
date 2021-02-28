@@ -1,0 +1,7 @@
+prev tail = -1, curr tail = 3, curr = 1, temp = 1
+p = 2
+hereee
+curr: 7 curr_tail: 1 prev_tail: 3
+temp: 4
+p = 2
+1 -> 6 -> 9 -> 3 -> 1 -> 4 -> 7 -> null
