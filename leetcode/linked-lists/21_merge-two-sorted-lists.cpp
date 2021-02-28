@@ -1,13 +1,55 @@
 #include <iostream>
 #include <vector>
+#include <limits>
 #include "LinkedList.h"
 
-ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+/*
+ * Splicing approach - only fix pointers rather
+ * than creating a new list.
+ */
+ListNode* mergeTwoLists(ListNode *l1, ListNode *l2) {
     /*
      * Create a dummy node - helps with cleaning up the
      * code from checking whether the head node exists.
      */
-    ListNode *merged_head = new ListNode(-9999);
+    ListNode *dummy_head = new ListNode(std::numeric_limits<int>::max());    
+    
+    // keeps track of the current node in the final merged list
+    ListNode *curr = dummy_head;
+    
+    // while both lists are non empty, check which of l1 or l2 has lesser value,
+    // then fix up the links
+    while (l1 != nullptr && l2 != nullptr) {
+        if (l1->val <= l2->val) {
+            curr->next = l1;
+            l1 = l1->next;
+        } else {
+            curr->next = l2;
+            l2 = l2->next;
+        }
+        
+        curr = curr->next;
+    }
+    
+    // if any of the lists are still nonempty, simply connect
+    // curr to the list.
+    if (l1 != nullptr) {
+        curr->next = l1;
+    } else if (l2 != nullptr) {
+        curr->next = l2;
+    }
+    return dummy_head->next;
+}
+
+/*
+ * This approach creates a new list.
+ */
+ListNode* mergeTwoLists1(ListNode* l1, ListNode* l2) {
+    /*
+     * Create a dummy node - helps with cleaning up the
+     * code from checking whether the head node exists.
+     */
+    ListNode *merged_head = new ListNode(std::numeric_limits<int>::max());
     ListNode *merged_tail = merged_head;
     
     int lesser;
@@ -42,16 +84,17 @@ ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
     return merged_head->next;
 }
 
+
 int main() {
     
     LinkedList l1;
-    std::vector<int> v1 = {1, 2, 4};
-    //std::vector<int> v1 = {};
+    //std::vector<int> v1 = {1, 2, 4};
+    std::vector<int> v1 = {};
     for (auto e : v1) l1.push_back(e);
     
     LinkedList l2;
-    std::vector<int> v2 = {1, 3, 4};
-    //std::vector<int> v2 = {0};
+    //std::vector<int> v2 = {1, 3, 4};
+    std::vector<int> v2 = {};
     for (auto e : v2) l2.push_back(e);
     
     ListNode *curr = mergeTwoLists(l1.head, l2.head);
