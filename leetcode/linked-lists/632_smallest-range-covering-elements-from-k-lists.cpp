@@ -39,7 +39,7 @@ std::vector<int> smallestRange(std::vector<std::vector<int>>& nums) {
         return *lit1.it > *lit2.it;
     };
     
-    std::priority_queue<int,
+    std::priority_queue<ListIterator,
                         std::vector<ListIterator>,
                         decltype(comp)> min_pq(comp);
     
