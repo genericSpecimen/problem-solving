@@ -15,7 +15,7 @@ struct ListIterator {
  * For conveniently comparing ranges using simply the < operator, we overload
  * the < operator for two vectors. Note that a range is a vector of two elements.
  */
-bool is_smaller(const std::vector<int> &r1, const std::vector<int> &r2) {
+bool operator<(const std::vector<int> &r1, const std::vector<int> &r2) {
     int range1 = r1[1] - r1[0];
     int range2 = r2[1] - r2[0];
     if ((range1 < range2) || (range1 == range2 && r1[0] < r2[0])){
@@ -69,7 +69,7 @@ std::vector<int> smallestRange(std::vector<std::vector<int>>& nums) {
         curr_range = {curr_min, curr_max};
         //std::cout << "[" << curr_range[0] << ", " << curr_range[1] << "], ";
         
-        if (is_smaller(curr_range, min_range)) {
+        if (curr_range < min_range) {
             min_range = curr_range;
         }
         
