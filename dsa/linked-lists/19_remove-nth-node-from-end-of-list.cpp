@@ -80,6 +80,36 @@ ListNode* removeNthFromEnd(ListNode* head, int n) {
  * 
  */
 
+ListNode* removeNthFromEnd(ListNode* head, int n) {
+    if (head == nullptr) {
+        return head;
+    }
+    
+    ListNode *dummy = new ListNode(std::numeric_limits<int>::max(), head);
+    ListNode *first = dummy;
+    ListNode *second = dummy;
+    
+    for (int i=0; i<n+1; i++) {
+        first = first->next;
+    }
+    
+    // now first is n nodes away from second
+    
+    while (first != nullptr) {
+        first = first->next;
+        second = second->next;
+    }
+    
+    // now the node next to second is the node to be deleted
+    
+    ListNode *temp = second->next;
+    second->next = second->next->next;
+    
+    delete temp;
+    
+    return dummy->next;
+}
+
 
 int main() {
     

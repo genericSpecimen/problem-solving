@@ -1,0 +1,198 @@
+<div class="action-area__3aY4"><div class="container__3-ij container__3r81"><div title="Upvote" class="vote__3Zp9 vote__3btZ" data-is-voted="false"><svg viewBox="0 0 24 24" width="1em" height="1em" class="icon__1Md2"><path fill-rule="evenodd" d="M7 14l5-5 5 5z"></path></svg></div><div title="Vote count" class="count__I8pP count__GRlR"><span>2.6K</span></div><div title="Downvote" class="vote__3Zp9 vote__3btZ" data-is-voted="false"><svg viewBox="0 0 24 24" width="1em" height="1em" class="icon__1Md2"><path fill-rule="evenodd" d="M7 10l5 5 5-5z"></path></svg></div></div></div><div class="post-area__3YJL"><div class="root__3bcS"><a href="/fun4LeetCode" target="_blank"><img alt="fun4LeetCode's avatar" class="avatar__7D9c" src="https://www.gravatar.com/avatar/a56eb0326ae81d5c07f523f067206ff0.png?s=200"></a><div><div><div class="user-info__2b-x"><span class="name__2jm2"><a href="/fun4LeetCode" target="_blank" class="link__Lpjq">fun4LeetCode</a></span><span class="reputation___jPr"><svg viewBox="0 0 24 24" width="1em" height="1em" class="icon__1Md2"><path fill-rule="evenodd" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>17078</span></div><div class="post-info__1K06"><p>Last Edit: October 27, 2018 3:12 AM</p><p class="view-count__dBuq">97.5K VIEWS</p></div></div></div></div><div class="content-area__2vnF"><div class="discuss-markdown-container"><p>Note: this is a repost of my original post <a href="https://discuss.leetcode.com/topic/97310/most-consistent-ways-of-dealing-with-the-series-of-stock-problems" rel="ugc">here</a> with updated solutions for this problem (<a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/description/" rel="ugc">714. Best Time to Buy and Sell Stock with Transaction Fee</a>). If you are only looking for solutions, you can go directly to each section in part <strong><code>II -- Applications to specific cases</code></strong>.</p><p>
+</p><hr>
+<p></p><p>Up to this point, I believe you have finished the following series of stock problems:</p><p>
+</p><ol>
+<li><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock/#/description" rel="ugc">121. Best Time to Buy and Sell Stock</a></li>
+<li><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/#/description" rel="ugc">122. Best Time to Buy and Sell Stock II</a></li>
+<li><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/#/description" rel="ugc">123. Best Time to Buy and Sell Stock III</a></li>
+<li><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/#/description" rel="ugc">188. Best Time to Buy and Sell Stock IV</a></li>
+<li><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/#/description" rel="ugc">309. Best Time to Buy and Sell Stock with Cooldown</a></li>
+<li><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/description/" rel="ugc">714. Best Time to Buy and Sell Stock with Transaction Fee</a></li>
+</ol>
+<p></p><p>For each problem, we've got a couple of excellent posts explaining how to approach it. However, most of the posts failed to identify the connections among these problems and made it hard to develop a consistent way of dealing with this series of problems. Here I will introduce the most generalized solution applicable to all of these problems, and its specialization to each of the six problems above.</p><p>
+</p><hr>
+<p></p><p><strong><code>I -- General cases</code></strong></p><p>
+</p><p>The idea begins with the following question: <strong>Given an array representing the price of stocks on each day, what determines the maximum profit we can obtain?</strong></p><p>
+</p><p>Most of you can quickly come up with answers like "it depends on which day we are and how many transactions we are allowed to complete". Sure, those are important factors as they manifest themselves in the problem descriptions. However, there is a hidden factor that is not so obvious but vital in determining the maximum profit, which is elaborated below.</p><p>
+</p><p>First let's spell out the notations to streamline our analyses. Let <code>prices</code> be the stock price array with length <code>n</code>, <code>i</code> denote the <code>i-th</code> day (<code>i</code> will go from <code>0</code> to <code>n-1</code>), <code>k</code> denote the maximum number of transactions allowed to complete, <code>T[i][k]</code> be the maximum profit that could be gained at the end of the <code>i-th</code> day with at most <code>k</code> transactions. Apparently we have base cases: <code>T[-1][k] = T[i][0] = 0</code>, that is, no stock or no transaction yield no profit (note the first day has <code>i = 0</code> so <code>i = -1</code> means no stock). Now if we can somehow relate <code>T[i][k]</code> to its subproblems like <code>T[i-1][k], T[i][k-1], T[i-1][k-1], ...</code>, we will have a working recurrence relation and the problem can be solved recursively. So how do we achieve that?</p><p>
+</p><p>The most straightforward way would be looking at actions taken on the <code>i-th</code> day. How many options do we have? The answer is three: <strong>buy</strong>, <strong>sell</strong>, <strong>rest</strong>. Which one should we take? The answer is: we don't really know, but to find out which one is easy. We can try each option and then choose the one that maximizes our profit, provided there are no other restrictions. However, we do have an extra restriction saying no multiple transactions are allowed at the same time, meaning if we decide to <strong>buy</strong> on the <code>i-th</code> day, there should be <code>0</code> stock held in our hand before we buy; if we decide to <strong>sell</strong> on the <code>i-th</code> day, there should be exactly <code>1</code> stock held in our hand before we sell. The number of stocks held in our hand is the hidden factor mentioned above that will affect the action on the <code>i-th</code> day and thus affect the maximum profit.</p><p>
+</p><p>Therefore our definition of <code>T[i][k]</code> should really be split into two: <code>T[i][k][0]</code> and <code>T[i][k][1]</code>, where the <strong>former</strong> denotes the maximum profit at the end of the <code>i-th</code> day with at most <code>k</code> transactions and with <code>0</code> stock in our hand AFTER taking the action, while the <strong>latter</strong> denotes the maximum profit at the end of the <code>i-th</code> day with at most <code>k</code> transactions and with <code>1</code> stock in our hand AFTER taking the action. Now the base cases and the recurrence relations can be written as:</p><p>
+</p><ol>
+<li>
+<p></p><p>Base cases:<br>
+<code>T[-1][k][0] = 0, T[-1][k][1] = -Infinity</code><br>
+<code>T[i][0][0] = 0, T[i][0][1] = -Infinity</code></p><p>
+</p></li>
+<li>
+<p></p><p>Recurrence relations:<br>
+<code>T[i][k][0] = max(T[i-1][k][0], T[i-1][k][1] + prices[i])</code><br>
+<code>T[i][k][1] = max(T[i-1][k][1], T[i-1][k-1][0] - prices[i])</code></p><p>
+</p></li>
+</ol>
+<p></p><p>For the base cases, <code>T[-1][k][0] = T[i][0][0] = 0</code> has the same meaning as before while <code>T[-1][k][1] = T[i][0][1] = -Infinity</code> emphasizes the fact that it is impossible for us to have <code>1</code> stock in hand if there is no stock available or no transactions are allowed.</p><p>
+</p><p>For <code>T[i][k][0]</code> in the recurrence relations, the actions taken on the <code>i-th</code> day can only be <strong>rest</strong> and <strong>sell</strong>, since we have <code>0</code> stock in our hand at the end of the day. <code>T[i-1][k][0]</code> is the maximum profit if action <strong>rest</strong> is taken, while <code>T[i-1][k][1] + prices[i]</code> is the maximum profit if action <strong>sell</strong> is taken. Note that the maximum number of allowable transactions remains the same, due to the fact that a transaction consists of two actions coming as a pair -- <strong>buy</strong> and <strong>sell</strong>. Only action <strong>buy</strong> will change the maximum number of transactions allowed (well, there is actually an alternative interpretation, see my <a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/discuss/108870/Most-consistent-ways-of-dealing-with-the-series-of-stock-problems/111002" rel="ugc">comment</a> below).</p><p>
+</p><p>For <code>T[i][k][1]</code> in the recurrence relations, the actions taken on the <code>i-th</code> day can only be <strong>rest</strong> and <strong>buy</strong>, since we have <code>1</code> stock in our hand at the end of the day. <code>T[i-1][k][1]</code> is the maximum profit if action <strong>rest</strong> is taken, while <code>T[i-1][k-1][0] - prices[i]</code> is the maximum profit if action <strong>buy</strong> is taken. Note that the maximum number of allowable transactions decreases by one, since buying on the <code>i-th</code> day will use one transaction, as explained above.</p><p>
+</p><p>To find the maximum profit at the end of the last day, we can simply loop through the <code>prices</code> array and update <code>T[i][k][0]</code> and <code>T[i][k][1]</code> according to the recurrence relations above. The final answer will be <code>T[i][k][0]</code> (we always have larger profit if we end up with <code>0</code> stock in hand).</p><p>
+</p><hr>
+<p></p><p><strong><code>II -- Applications to specific cases</code></strong></p><p>
+</p><p>The aforementioned six stock problems are classified by the value of <code>k</code>, which is the maximum number of allowable transactions (the last two also have additional requirements such as "cooldown" or "transaction fee"). I will apply the general solution to each of them one by one.</p><p>
+<br>
+</p><p><strong>Case I: <code>k = 1</code></strong></p><p>
+</p><p>For this case, we really have two unknown variables on each day: <code>T[i][1][0]</code> and <code>T[i][1][1]</code>, and the recurrence relations say:</p><p>
+</p><p><code>T[i][1][0] = max(T[i-1][1][0], T[i-1][1][1] + prices[i])</code><br>
+<code>T[i][1][1] = max(T[i-1][1][1], T[i-1][0][0] - prices[i]) = max(T[i-1][1][1], -prices[i])</code></p><p>
+</p><p>where we have taken advantage of the base case<code>T[i][0][0] = 0</code> for the second equation.</p><p>
+</p><p>It is straightforward to write the <code>O(n)</code> time and <code>O(n)</code> space solution, based on the two equations above. However, if you notice that the maximum profits on the <code>i-th</code> day actually only depend on those on the <code>(i-1)-th</code> day, the space can be cut down to <code>O(1)</code>. Here is the space-optimized solution:</p><p>
+</p><pre><code><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">maxProfit</span><span class="hljs-params">(<span class="hljs-keyword">int</span>[] prices)</span> </span>{
+    <span class="hljs-keyword">int</span> T_i10 = <span class="hljs-number">0</span>, T_i11 = Integer.MIN_VALUE;
+        
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> price : prices) {
+        T_i10 = Math.max(T_i10, T_i11 + price);
+        T_i11 = Math.max(T_i11, -price);
+    }
+        
+    <span class="hljs-keyword">return</span> T_i10;
+}
+</code></pre>
+<p></p><p>Now let's try to gain some insight of the solution above. If we examine the part inside the loop more carefully, <code>T_i11</code> really just represents the maximum value of the negative of all stock prices up to the <code>i-th</code> day, or equivalently the minimum value of all the stock prices. As for <code>T_i10</code>, we just need to decide which action yields a higher profit, sell or rest. And if action sell is taken, the price at which we bought the stock is <code>T_i11</code>, i.e., the minimum value before the <code>i-th</code> day. This is exactly what we would do in reality if we want to gain maximum profit. I should point out that this is not the only way of solving the problem for this case. You may find some other nice solutions <a href="https://discuss.leetcode.com/topic/19853/kadane-s-algorithm-since-no-one-has-mentioned-about-this-so-far-in-case-if-interviewer-twists-the-input" rel="ugc">here</a>.</p><p>
+<br>
+</p><p><strong>Case II: <code>k = +Infinity</code></strong></p><p>
+</p><p>If <code>k</code> is positive infinity, then there isn't really any difference between <code>k</code> and <code>k - 1</code> (wonder why? see my <a href="https://discuss.leetcode.com/topic/107998/most-consistent-ways-of-dealing-with-the-series-of-stock-problems/9" rel="ugc">comment</a> below), which implies <code>T[i-1][k-1][0] = T[i-1][k][0]</code> and <code>T[i-1][k-1][1] = T[i-1][k][1]</code>. Therefore, we still have two unknown variables on each day: <code>T[i][k][0]</code> and <code>T[i][k][1]</code> with <code>k = +Infinity</code>, and the recurrence relations say:</p><p>
+</p><p><code>T[i][k][0] = max(T[i-1][k][0], T[i-1][k][1] + prices[i])</code><br>
+<code>T[i][k][1] = max(T[i-1][k][1], T[i-1][k-1][0] - prices[i]) = max(T[i-1][k][1], T[i-1][k][0] - prices[i])</code></p><p>
+</p><p>where we have taken advantage of the fact that <code>T[i-1][k-1][0] = T[i-1][k][0]</code> for the second equation. The <code>O(n)</code> time and <code>O(1)</code> space solution is as follows:</p><p>
+</p><pre><code><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">maxProfit</span><span class="hljs-params">(<span class="hljs-keyword">int</span>[] prices)</span> </span>{
+    <span class="hljs-keyword">int</span> T_ik0 = <span class="hljs-number">0</span>, T_ik1 = Integer.MIN_VALUE;
+    
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> price : prices) {
+        <span class="hljs-keyword">int</span> T_ik0_old = T_ik0;
+        T_ik0 = Math.max(T_ik0, T_ik1 + price);
+        T_ik1 = Math.max(T_ik1, T_ik0_old - price);
+    }
+    
+    <span class="hljs-keyword">return</span> T_ik0;
+}
+</code></pre>
+<p></p><p>(<strong>Note</strong>: The caching of the old values of <code>T_ik0</code>, that is, the variable <code>T_ik0_old</code>, is <a href="https://discuss.leetcode.com/topic/107998/most-consistent-ways-of-dealing-with-the-series-of-stock-problems/24" rel="ugc">unnecessary</a>. Special thanks to <a href="https://discuss.leetcode.com/user/0x0101" rel="ugc">0x0101</a> and <a href="https://discuss.leetcode.com/user/elvina" rel="ugc">elvina</a> for clarifying this.)</p><p>
+</p><p>This solution suggests a greedy strategy of gaining maximum profit: as long as possible, buy stock at each local minimum and sell at the immediately followed local maximum. This is equivalent to finding increasing subarrays in <code>prices</code> (the stock price array), and buying at the beginning price of each subarray while selling at its end price. It's easy to show that this is the same as accumulating profits as long as it is profitable to do so, as demonstrated in this <a href="https://discuss.leetcode.com/topic/726/is-this-question-a-joke" rel="ugc">post</a>.</p><p>
+<br>
+</p><p><strong>Case III: <code>k = 2</code></strong></p><p>
+</p><p>Similar to the case where <code>k = 1</code>, except now we have four variables instead of two on each day: <code>T[i][1][0]</code>, <code>T[i][1][1]</code>, <code>T[i][2][0]</code>, <code>T[i][2][1]</code>, and the recurrence relations are:</p><p>
+</p><p><code>T[i][2][0] = max(T[i-1][2][0], T[i-1][2][1] + prices[i])</code><br>
+<code>T[i][2][1] = max(T[i-1][2][1], T[i-1][1][0] - prices[i])</code><br>
+<code>T[i][1][0] = max(T[i-1][1][0], T[i-1][1][1] + prices[i])</code><br>
+<code>T[i][1][1] = max(T[i-1][1][1], -prices[i])</code></p><p>
+</p><p>where again we have taken advantage of the base case<code>T[i][0][0] = 0</code> for the last equation. The <code>O(n)</code> time and <code>O(1)</code> space solution is as follows:</p><p>
+</p><pre><code>public <span class="hljs-built_in">int</span> maxProfit(<span class="hljs-built_in">int</span>[] prices) {
+    <span class="hljs-built_in">int</span> T_i10 = <span class="hljs-number">0</span>, T_i11 = Integer.MIN_VALUE;
+    <span class="hljs-built_in">int</span> T_i20 = <span class="hljs-number">0</span>, T_i21 = Integer.MIN_VALUE;
+        
+    <span class="hljs-keyword">for</span> (<span class="hljs-built_in">int</span> price : prices) {
+        T_i20 = Math.<span class="hljs-built_in">max</span>(T_i20, T_i21 + price);
+        T_i21 = Math.<span class="hljs-built_in">max</span>(T_i21, T_i10 - price);
+        T_i10 = Math.<span class="hljs-built_in">max</span>(T_i10, T_i11 + price);
+        T_i11 = Math.<span class="hljs-built_in">max</span>(T_i11, -price);
+    }
+        
+    <span class="hljs-keyword">return</span> T_i20;
+}
+</code></pre>
+<p></p><p>which is essentially the same as the one given <a href="https://discuss.leetcode.com/topic/5934/is-it-best-solution-with-o-n-o-1" rel="ugc">here</a>.</p><p>
+<br>
+</p><p><strong>Case IV: <code>k is arbitrary</code></strong></p><p>
+</p><p>This is the most general case so on each day we need to update all the maximum profits with different <code>k</code> values corresponding to <code>0</code> or <code>1</code> stocks in hand at the end of the day. However, there is a minor optimization we can do if <code>k</code> exceeds some critical value, beyond which the maximum profit will no long depend on the number of allowable transactions but instead will be bound by the number of available stocks (length of the <code>prices</code> array). Let's figure out what this critical value will be.</p><p>
+</p><p>A profitable transaction takes at least two days (buy at one day and sell at the other, provided the buying price is less than the selling price). If the length of the <code>prices</code> array is <code>n</code>, the maximum number of profitable transactions is <code>n/2</code> (integer division). After that no profitable transaction is possible, which implies the maximum profit will stay the same. Therefore the critical value of <code>k</code> is <code>n/2</code>. If the given <code>k</code> is no less than this value, i.e., <code>k &gt;= n/2</code>, we can extend <code>k</code> to positive infinity and the problem is equivalent to <strong><code>Case II</code></strong>.</p><p>
+</p><p>The following is the <code>O(kn)</code> time and <code>O(k)</code> space solution. Without the optimization, the code will be met with TLE for large <code>k</code> values.</p><p>
+</p><pre><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> maxProfit(<span class="hljs-keyword">int</span> k, <span class="hljs-keyword">int</span>[] prices) {
+    <span class="hljs-keyword">if</span> (k &gt;= prices.length &gt;&gt;&gt; <span class="hljs-number">1</span>) {
+        <span class="hljs-keyword">int</span> T_ik0 = <span class="hljs-number">0</span>, T_ik1 = <span class="hljs-keyword">Integer</span>.MIN_VALUE;
+    
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> price : prices) {
+            <span class="hljs-keyword">int</span> T_ik0_old = T_ik0;
+            T_ik0 = Math.max(T_ik0, T_ik1 + price);
+            T_ik1 = Math.max(T_ik1, T_ik0_old - price);
+        }
+        
+        <span class="hljs-keyword">return</span> T_ik0;
+    }
+        
+    <span class="hljs-keyword">int</span>[] T_ik0 = <span class="hljs-keyword">new</span> <span class="hljs-keyword">int</span>[k + <span class="hljs-number">1</span>];
+    <span class="hljs-keyword">int</span>[] T_ik1 = <span class="hljs-keyword">new</span> <span class="hljs-keyword">int</span>[k + <span class="hljs-number">1</span>];
+    Arrays.fill(T_ik1, <span class="hljs-keyword">Integer</span>.MIN_VALUE);
+        
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> price : prices) {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> j = k; j &gt; <span class="hljs-number">0</span>; j--) {
+            T_ik0[j] = Math.max(T_ik0[j], T_ik1[j] + price);
+            T_ik1[j] = Math.max(T_ik1[j], T_ik0[j - <span class="hljs-number">1</span>] - price);
+        }
+    }
+        
+    <span class="hljs-keyword">return</span> T_ik0[k];
+}
+</code></pre>
+<p></p><p>The solution is similar to the one found in this <a href="https://discuss.leetcode.com/topic/8984/a-concise-dp-solution-in-java" rel="ugc">post</a>. Here I used backward looping for the <code>T</code> array to avoid using temporary variables. It turns out that it is <a href="https://discuss.leetcode.com/topic/107998/most-consistent-ways-of-dealing-with-the-series-of-stock-problems/26" rel="ugc">possible</a> to do forward looping without temporary variables, too.</p><p>
+<br>
+</p><p><strong>Case V: <code>k = +Infinity but with cooldown</code></strong></p><p>
+</p><p>This case resembles <strong><code>Case II</code></strong> very much due to the fact that they have the same <code>k</code> value, except now the recurrence relations have to be modified slightly to account for the "<strong>cooldown</strong>" requirement. The original recurrence relations for <strong><code>Case II</code></strong> are given by</p><p>
+</p><p><code>T[i][k][0] = max(T[i-1][k][0], T[i-1][k][1] + prices[i])</code><br>
+<code>T[i][k][1] = max(T[i-1][k][1], T[i-1][k][0] - prices[i])</code></p><p>
+</p><p>But with "cooldown", we cannot buy on the <code>i-th</code> day if a stock is sold on the <code>(i-1)-th</code> day. Therefore, in the second equation above, instead of <code>T[i-1][k][0]</code>, we should actually use <code>T[i-2][k][0]</code> if we intend to buy on the <code>i-th</code> day. Everything else remains the same and the new recurrence relations are</p><p>
+</p><p><code>T[i][k][0] = max(T[i-1][k][0], T[i-1][k][1] + prices[i])</code><br>
+<code>T[i][k][1] = max(T[i-1][k][1], T[i-2][k][0] - prices[i])</code></p><p>
+</p><p>And here is the <code>O(n)</code> time and <code>O(1)</code> space solution:</p><p>
+</p><pre><code><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">maxProfit</span><span class="hljs-params">(<span class="hljs-keyword">int</span>[] prices)</span> </span>{
+    <span class="hljs-keyword">int</span> T_ik0_pre = <span class="hljs-number">0</span>, T_ik0 = <span class="hljs-number">0</span>, T_ik1 = Integer.MIN_VALUE;
+    
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> price : prices) {
+        <span class="hljs-keyword">int</span> T_ik0_old = T_ik0;
+        T_ik0 = Math.max(T_ik0, T_ik1 + price);
+        T_ik1 = Math.max(T_ik1, T_ik0_pre - price);
+        T_ik0_pre = T_ik0_old;
+    }
+    
+    <span class="hljs-keyword">return</span> T_ik0;
+}
+</code></pre>
+<p></p><p><a href="https://discuss.leetcode.com/user/dietpepsi" rel="ugc">dietpepsi</a> shared a very nice solution <a href="https://discuss.leetcode.com/topic/30421/share-my-thinking-process" rel="ugc">here</a> with thinking process, which turns out to be the same as the one above.</p><p>
+<br>
+</p><p><strong>Case VI: <code>k = +Infinity but with transaction fee</code></strong></p><p>
+</p><p>Again this case resembles <strong><code>Case II</code></strong> very much as they have the same <code>k</code> value, except now the recurrence relations need to be modified slightly to account for the "<strong>transaction fee</strong>" requirement. The original recurrence relations for <strong><code>Case II</code></strong> are given by</p><p>
+</p><p><code>T[i][k][0] = max(T[i-1][k][0], T[i-1][k][1] + prices[i])</code><br>
+<code>T[i][k][1] = max(T[i-1][k][1], T[i-1][k][0] - prices[i])</code></p><p>
+</p><p>Since now we need to pay some fee (denoted as <code>fee</code>) for each transaction made, the profit after buying or selling the stock on the <code>i-th</code> day should be subtracted by this amount, therefore the new recurrence relations will be either</p><p>
+</p><p><code>T[i][k][0] = max(T[i-1][k][0], T[i-1][k][1] + prices[i])</code><br>
+<code>T[i][k][1] = max(T[i-1][k][1], T[i-1][k][0] - prices[i] - fee)</code></p><p>
+</p><p>or</p><p>
+</p><p><code>T[i][k][0] = max(T[i-1][k][0], T[i-1][k][1] + prices[i] - fee)</code><br>
+<code>T[i][k][1] = max(T[i-1][k][1], T[i-1][k][0] - prices[i])</code></p><p>
+</p><p>Note we have two options as for when to subtract the <code>fee</code>. This is because (as I mentioned above) each transaction is characterized by two actions coming as a pair - - <strong>buy</strong> and <strong>sell</strong>. The fee can be paid either when we buy the stock (corresponds to the first set of equations) or when we sell it (corresponds to the second set of equations). The following are the <code>O(n)</code> time and <code>O(1)</code> space solutions corresponding to these two options, where for the second solution we need to pay attention to possible overflows.</p><p>
+</p><p><strong>Solution I</strong> -- pay the fee when buying the stock:</p><p>
+</p><pre><code><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">maxProfit</span><span class="hljs-params">(<span class="hljs-keyword">int</span>[] prices, <span class="hljs-keyword">int</span> fee)</span> </span>{
+    <span class="hljs-keyword">int</span> T_ik0 = <span class="hljs-number">0</span>, T_ik1 = Integer.MIN_VALUE;
+    
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> price : prices) {
+        <span class="hljs-keyword">int</span> T_ik0_old = T_ik0;
+        T_ik0 = Math.max(T_ik0, T_ik1 + price);
+        T_ik1 = Math.max(T_ik1, T_ik0_old - price - fee);
+    }
+        
+    <span class="hljs-keyword">return</span> T_ik0;
+}
+</code></pre>
+<p></p><p><strong>Solution II</strong> -- pay the fee when selling the stock:</p><p>
+</p><pre><code><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">maxProfit</span><span class="hljs-params">(<span class="hljs-keyword">int</span>[] prices, <span class="hljs-keyword">int</span> fee)</span> </span>{
+    <span class="hljs-keyword">long</span> T_ik0 = <span class="hljs-number">0</span>, T_ik1 = Integer.MIN_VALUE;
+    
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> price : prices) {
+        <span class="hljs-keyword">long</span> T_ik0_old = T_ik0;
+        T_ik0 = Math.max(T_ik0, T_ik1 + price - fee);
+        T_ik1 = Math.max(T_ik1, T_ik0_old - price);
+    }
+        
+    <span class="hljs-keyword">return</span> (<span class="hljs-keyword">int</span>)T_ik0;
+}
+</code></pre>
+<hr>
+<p></p><p><strong><code>III -- Summary</code></strong></p><p>
+</p><p>In summary, the most general case of the stock problem can be characterized by three factors, the ordinal of the day <code>i</code>, the maximum number of allowable transactions <code>k</code>, and the number of stocks in our hand at the end of the day. I have shown the recurrence relations for the maximum profits and their termination conditions, which leads to the <code>O(nk)</code> time and <code>O(k)</code> space solution. The results are then applied to each of the six cases, with the last two using slightly modified recurrence relations due to the additional requirements. I should mention that <a href="https://discuss.leetcode.com/user/peterleetcode" rel="ugc">peterleetcode</a> also introduced a nice solution <a href="https://discuss.leetcode.com/topic/4766/a-clean-dp-solution-which-generalizes-to-k-transactions" rel="ugc">here</a> which generalizes to arbitrary <code>k</code> values. If you have a taste, take a look.</p><p>
+</p><p>Hope this helps and happy coding!</p></div></div><div class="tag-list-container__2cDj"><div class="css-9sdfuf"></div></div></div>
