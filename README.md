@@ -1,4 +1,3 @@
-# competitive
+# problem-solving
 
-My attempts at competitive programming.
-
+Attempts at honing my problem solving skills.
